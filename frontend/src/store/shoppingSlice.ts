@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { saveOrder, fetchCategories } from '../services/api';
+import { fetchCategories, fetchItems, saveItem, updateItemQuantity, deleteItemFromServer, saveOrder } from '../services/api';
 import { ShoppingState, Item, Category } from './types';
 
 const initialState: ShoppingState = {
@@ -16,6 +16,38 @@ export const fetchCategoriesAsync = createAsyncThunk(
   }
 );
 
+export const fetchItemsAsync = createAsyncThunk(
+  'shopping/fetchItems',
+  async () => {
+    const response = await fetchItems();
+    return response;
+  }
+);
+
+export const addItemAsync = createAsyncThunk(
+  'shopping/addItem',
+  async (item: Omit<Item, 'id'>) => {
+    const response = await saveItem(item);
+    return response;
+  }
+);
+
+export const updateItemAsync = createAsyncThunk(
+  'shopping/updateItem',
+  async ({ id, quantity }: { id: number; quantity: number }) => {
+    const response = await updateItemQuantity(id, quantity);
+    return response;
+  }
+);
+
+export const deleteItemAsync = createAsyncThunk(
+  'shopping/deleteItem',
+  async (id: number) => {
+    await deleteItemFromServer(id);
+    return id;
+  }
+);
+
 export const saveOrderAsync = createAsyncThunk(
   'shopping/saveOrder',
   async (_, { getState }) => {
@@ -27,39 +59,34 @@ export const saveOrderAsync = createAsyncThunk(
 const shoppingSlice = createSlice({
   name: 'shopping',
   initialState,
-  reducers: {
-    addItem: (state, action: PayloadAction<Omit<Item, 'id'>>) => {
-      const newItem = {
-        ...action.payload,
-        id: Date.now(), // Use a temporary ID
-      };
-      state.items.push(newItem);
-      state.totalItems += 1;
-    },
-    updateItem: (state, action: PayloadAction<{ id: number; quantity: number }>) => {
-      const item = state.items.find(item => item.id === action.payload.id);
-      if (item) {
-        const diff = action.payload.quantity - item.quantity;
-        item.quantity = action.payload.quantity;
-        state.totalItems += diff;
-      }
-    },
-    deleteItem: (state, action: PayloadAction<number>) => {
-      const index = state.items.findIndex(item => item.id === action.payload);
-      if (index !== -1) {
-        state.totalItems -= state.items[index].quantity;
-        state.items.splice(index, 1);
-      }
-    },
-    clearOrder: (state) => {
-      state.items = [];
-      state.totalItems = 0;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategoriesAsync.fulfilled, (state, action) => {
         state.categories = action.payload;
+      })
+      .addCase(fetchItemsAsync.fulfilled, (state, action) => {
+        state.items = action.payload;
+        state.totalItems = action.payload.reduce((total: number, item: Item) => total + item.quantity, 0);
+      })
+      .addCase(addItemAsync.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+        state.totalItems += action.payload.quantity;
+      })
+      .addCase(updateItemAsync.fulfilled, (state, action) => {
+        const index = state.items.findIndex(item => item.id === action.payload.id);
+        if (index !== -1) {
+          const diff = action.payload.quantity - state.items[index].quantity;
+          state.items[index] = action.payload;
+          state.totalItems += diff;
+        }
+      })
+      .addCase(deleteItemAsync.fulfilled, (state, action) => {
+        const index = state.items.findIndex(item => item.id === action.payload);
+        if (index !== -1) {
+          state.totalItems -= state.items[index].quantity;
+          state.items.splice(index, 1);
+        }
       })
       .addCase(saveOrderAsync.fulfilled, (state) => {
         state.items = [];
@@ -68,5 +95,4 @@ const shoppingSlice = createSlice({
   },
 });
 
-export const { addItem, updateItem, deleteItem, clearOrder } = shoppingSlice.actions;
 export default shoppingSlice.reducer;

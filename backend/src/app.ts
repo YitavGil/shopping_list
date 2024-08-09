@@ -5,6 +5,7 @@ import itemRoutes from './routes/itemRoutes';
 import cors from 'cors';
 import { seedCategories } from './utils/seedCategory';
 import { createCategoriesTable } from './utils/createCategoryTable';
+import { createItemsTable } from './utils/createItemsTable';
 
 const app = express();
 const PORT = 3000;
@@ -23,6 +24,7 @@ const initializeDatabase = async () => {
     await connectDB();
     console.log('Database connected successfully');
     await createCategoriesTable();
+    await createItemsTable();  
     await seedCategories();
     console.log('Database initialization and seeding completed');
   } catch (error) {

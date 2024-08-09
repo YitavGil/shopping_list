@@ -26,11 +26,11 @@ export const getItemById = async (req: Request, res: Response) => {
 
 export const createItem = async (req: Request, res: Response) => {
   try {
-    const { name, categoryId } = req.body;
+    const { name, categoryId, quantity = 1 } = req.body;
     if (!name || !categoryId) {
       return res.status(400).json({ message: 'Name and categoryId are required' });
     }
-    const newItem = await ItemModel.create(name, Number(categoryId));
+    const newItem = await ItemModel.create(name, Number(categoryId), Number(quantity));
     res.status(201).json(newItem);
   } catch (error) {
     console.error('Error creating item:', error);
@@ -51,8 +51,14 @@ export const createMultipleItems = async (req: Request, res: Response) => {
 export const updateItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, categoryId } = req.body;
-    const [updated, items] = await ItemModel.update(Number(id), name, categoryId);
+    const { name, categoryId, quantity } = req.body;
+    
+    if (!name || !categoryId || quantity === undefined) {
+      return res.status(400).json({ message: 'Name, categoryId, and quantity are required' });
+    }
+
+    const [updated, items] = await ItemModel.update(Number(id), name, Number(categoryId), Number(quantity));
+    
     if (updated > 0) {
       res.json(items[0]);
     } else {

@@ -12,12 +12,20 @@ import {
   ListItemText, 
   Box, 
   IconButton,
-  Typography
+  Typography,
+  Divider
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { addItem, updateItem, deleteItem, fetchCategoriesAsync, saveOrderAsync } from '../store/shoppingSlice';
+import { 
+  fetchCategoriesAsync, 
+  fetchItemsAsync, 
+  addItemAsync, 
+  updateItemAsync, 
+  deleteItemAsync, 
+  saveOrderAsync 
+} from '../store/shoppingSlice';
 import { AppDispatch, RootState } from '../store/store';
 import { Item, Category } from '../store/types';
 
@@ -25,10 +33,11 @@ const ShoppingList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [itemName, setItemName] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const { categories, items } = useSelector((state: RootState) => state.shopping);
+  const { categories, items, totalItems } = useSelector((state: RootState) => state.shopping);
 
   useEffect(() => {
     dispatch(fetchCategoriesAsync());
+    dispatch(fetchItemsAsync());
   }, [dispatch]);
 
   const handleAddItem = () => {
@@ -38,18 +47,18 @@ const ShoppingList: React.FC = () => {
         categoryId: Number(categoryId),
         quantity: 1
       };
-      dispatch(addItem(newItem));
+      dispatch(addItemAsync(newItem));
       setItemName('');
       setCategoryId('');
     }
   };
 
   const handleUpdateQuantity = (id: number, quantity: number) => {
-    dispatch(updateItem({ id, quantity }));
+    dispatch(updateItemAsync({ id, quantity }));
   };
 
   const handleDeleteItem = (id: number) => {
-    dispatch(deleteItem(id));
+    dispatch(deleteItemAsync(id));
   };
 
   const handleFinishOrder = () => {
