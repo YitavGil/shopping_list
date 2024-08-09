@@ -39,7 +39,7 @@ const ShoppingList: React.FC = () => {
   const [categoryId, setCategoryId] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  const { categories, items, totalItems } = useSelector((state: RootState) => state.shopping);
+  const { categories, items } = useSelector((state: RootState) => state.shopping);
 
   useEffect(() => {
     dispatch(fetchCategoriesAsync());
@@ -68,7 +68,6 @@ const ShoppingList: React.FC = () => {
           await dispatch(updateItemAsync({ id, quantity: updatedQuantity })).unwrap();
         } catch (error) {
           console.error('Failed to update item quantity:', error);
-        
         }
       }
     }
@@ -155,6 +154,7 @@ const ShoppingList: React.FC = () => {
           <FormControl fullWidth>
             <InputLabel>קטגוריה</InputLabel>
             <Select
+              label="קטגוריה"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value as string)}
             >

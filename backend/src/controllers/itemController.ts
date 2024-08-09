@@ -51,13 +51,18 @@ export const createMultipleItems = async (req: Request, res: Response) => {
 export const updateItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, categoryId, quantity } = req.body;
+    const { quantity } = req.body;
     
-    if (!name || !categoryId || quantity === undefined) {
-      return res.status(400).json({ message: 'Name, categoryId, and quantity are required' });
+    if (quantity === undefined || isNaN(quantity) || quantity < 1) {
+      return res.status(400).json({ message: 'Invalid quantity provided' });
     }
 
-    const [updated, items] = await ItemModel.update(Number(id), name, Number(categoryId), Number(quantity));
+    const item = await ItemModel.findByPk(Number(id));
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    const [updated, items] = await ItemModel.update(Number(id), item.name, item.categoryId, Number(quantity));
     
     if (updated > 0) {
       res.json(items[0]);
@@ -65,6 +70,7 @@ export const updateItem = async (req: Request, res: Response) => {
       res.status(404).json({ message: 'Item not found' });
     }
   } catch (error) {
+    console.error('Error updating item:', error);
     res.status(500).json({ message: 'Error updating item', error });
   }
 };

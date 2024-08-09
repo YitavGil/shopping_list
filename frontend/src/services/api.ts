@@ -19,8 +19,18 @@ export const saveItem = async (item: Omit<Item, 'id'>) => {
 };
 
 export const updateItemQuantity = async (id: number, quantity: number): Promise<Item> => {
-  const response = await axios.put(`${API_BASE_URL}/items/${id}`, { quantity });
-  return response.data;
+  try {
+    const response = await axios.put(`${API_BASE_URL}/items/${id}`, { quantity });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error updating item quantity:', error.response?.data);
+      throw new Error(`Failed to update item quantity: ${error.response?.data?.message || error.message}`);
+    } else {
+      console.error('Unexpected error:', error);
+      throw new Error('An unexpected error occurred');
+    }
+  }
 };
 
 export const deleteItemFromServer = async (id: number) => {
