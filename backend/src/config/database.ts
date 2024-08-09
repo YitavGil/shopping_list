@@ -1,19 +1,16 @@
 import sql from 'mssql';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const config: sql.config = {
-  server: 'YITAV\\SQLEXPRESS',
-  database: 'shopping_list',
-  user: 'sa',
-  password: '1234',
+  server: process.env.DB_SERVER || '',
+  database: process.env.DB_NAME || '',
+  user: process.env.DB_USER || '',
+  password: process.env.DB_PASSWORD || '',
   options: {
-    encrypt: false,
-    trustServerCertificate: true,
-    debug: {
-      packet: true,
-      data: true,
-      payload: true,
-      token: false,
-    }
+    encrypt: process.env.DB_ENCRYPT === 'true',
+    trustServerCertificate: process.env.DB_TRUST_SERVER_CERTIFICATE === 'true',
   }
 };
 
