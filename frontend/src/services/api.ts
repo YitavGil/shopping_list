@@ -18,7 +18,7 @@ export const saveItem = async (item: Omit<Item, 'id'>) => {
   return response.data;
 };
 
-export const updateItemQuantity = async (id: number, quantity: number) => {
+export const updateItemQuantity = async (id: number, quantity: number): Promise<Item> => {
   const response = await axios.put(`${API_BASE_URL}/items/${id}`, { quantity });
   return response.data;
 };

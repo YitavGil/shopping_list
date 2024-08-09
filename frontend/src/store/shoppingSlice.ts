@@ -59,7 +59,12 @@ export const saveOrderAsync = createAsyncThunk(
 const shoppingSlice = createSlice({
   name: 'shopping',
   initialState,
-  reducers: {},
+  reducers: {
+    clearOrder: (state) => {
+      state.items = [];
+      state.totalItems = 0;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategoriesAsync.fulfilled, (state, action) => {
@@ -73,12 +78,12 @@ const shoppingSlice = createSlice({
         state.items.push(action.payload);
         state.totalItems += action.payload.quantity;
       })
-      .addCase(updateItemAsync.fulfilled, (state, action) => {
+      .addCase(updateItemAsync.fulfilled, (state, action: PayloadAction<Item>) => {
         const index = state.items.findIndex(item => item.id === action.payload.id);
         if (index !== -1) {
-          const diff = action.payload.quantity - state.items[index].quantity;
+          const oldQuantity = state.items[index].quantity;
           state.items[index] = action.payload;
-          state.totalItems += diff;
+          state.totalItems += action.payload.quantity - oldQuantity;
         }
       })
       .addCase(deleteItemAsync.fulfilled, (state, action) => {
@@ -95,4 +100,5 @@ const shoppingSlice = createSlice({
   },
 });
 
+export const { clearOrder } = shoppingSlice.actions;
 export default shoppingSlice.reducer;
