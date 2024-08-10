@@ -22,8 +22,9 @@ This project is a full-stack shopping list application built with React, TypeScr
 - Node.js
 - Express.js
 - TypeScript
+- ORM library - Sequelize 
 - Microsoft SQL Server Express 2022 for database
-- mssql 
+
 
 ## Prerequisites
 
