@@ -63,7 +63,7 @@ Before you begin, ensure you have met the following requirements:
 1. Clone the repository:
    ```
    git clone https://github.com/YitavGil/shopping_list.git
-   cd shopping-list-app
+   cd shopping_list
    ```
 
 2. Install backend dependencies:
