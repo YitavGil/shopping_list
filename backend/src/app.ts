@@ -19,7 +19,7 @@ app.use('/api/items', itemRoutes);
 
 const initializeDatabase = async () => {
   try {
-    await sequelize.sync(); // This will create the tables if they don't exist
+    await sequelize.sync(); 
     console.log('Database synchronized');
     await seedCategories();
     console.log('Database initialized and seeded');

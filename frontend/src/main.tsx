@@ -7,8 +7,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 const theme = createTheme({
-  direction: 'rtl', // For RTL support
-  // You can customize the theme further here
+  direction: 'rtl',
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
