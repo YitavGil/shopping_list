@@ -2,7 +2,7 @@
 
 This project is a full-stack shopping list application built with React, TypeScript, and Node.js. It allows users to create, manage, and organize their shopping lists efficiently.
 
-![shopping_list](https://github.com/user-attachments/assets/d616c91a-5904-479b-a77d-1185c2d9d7dc)
+![shopping_list](https://github.com/user-attachments/assets/3c5dae7a-89cc-4055-9744-f5d8e751b5de)
 
 ## Features
 
