@@ -1,65 +1,45 @@
-import { sql } from '../config/database';
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../config/database';
+import Category from './category';
 
-export interface Item {
-  id: number;
-  name: string;
-  categoryId: number;
-  quantity: number;
+class Item extends Model {
+  public id!: number;
+  public name!: string;
+  public categoryId!: number;
+  public quantity!: number;
 }
 
-export class ItemModel {
-  static async findAll(): Promise<Item[]> {
-    const result = await sql.query`SELECT * FROM Items`;
-    return result.recordset;
-  }
+Item.init({
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  categoryId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Category,
+      key: 'id',
+    },
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+  },
+}, {
+  sequelize,
+  modelName: 'Item',
+  tableName: 'Items',
+  timestamps: false,
+});
 
-  static async findByPk(id: number): Promise<Item | null> {
-    const result = await sql.query`SELECT * FROM Items WHERE id = ${id}`;
-    return result.recordset[0] || null;
-  }
+Item.belongsTo(Category, { foreignKey: 'categoryId' });
+Category.hasMany(Item, { foreignKey: 'categoryId' });
 
-  static async create(name: string, categoryId: number, quantity: number = 1): Promise<Item> {
-    try {
-      const result = await sql.query`
-        INSERT INTO Items (name, categoryId, quantity) 
-        OUTPUT INSERTED.* 
-        VALUES (${name}, ${categoryId}, ${quantity})
-      `;
-      return result.recordset[0];
-    } catch (error) {
-      console.error('Error in ItemModel.create:', error);
-      throw error;
-    }
-  }
-
-  static async bulkCreate(items: Omit<Item, 'id'>[]): Promise<Item[]> {
-    const table = new sql.Table('Items');
-    table.create = true;
-    table.columns.add('name', sql.VarChar(255), {nullable: false});
-    table.columns.add('categoryId', sql.Int, {nullable: false});
-    table.columns.add('quantity', sql.Int, {nullable: false});
-    
-    items.forEach(item => {
-      table.rows.add(item.name, item.categoryId, item.quantity);
-    });
-
-    await sql.query`INSERT INTO Items (name, categoryId, quantity) SELECT name, categoryId, quantity FROM ${table}`;
-    
-    return this.findAll();
-  }
-
-  static async update(id: number, name: string, categoryId: number, quantity: number): Promise<[number, Item[]]> {
-    const result = await sql.query`
-      UPDATE Items 
-      SET name = ${name}, categoryId = ${categoryId}, quantity = ${quantity} 
-      OUTPUT INSERTED.* 
-      WHERE id = ${id}
-    `;
-    return [result.rowsAffected[0], result.recordset];
-  }
-
-  static async destroy(id: number): Promise<number> {
-    const result = await sql.query`DELETE FROM Items WHERE id = ${id}`;
-    return result.rowsAffected[0];
-  }
-}
+export default Item;

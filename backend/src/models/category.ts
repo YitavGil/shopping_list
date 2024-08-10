@@ -1,33 +1,26 @@
-import { sql } from '../config/database';
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../config/database';
 
-export interface Category {
-  id: number;
-  name: string;
+class Category extends Model {
+  public id!: number;
+  public name!: string;
 }
 
-export class CategoryModel {
-  static async findAll(): Promise<Category[]> {
-    const result = await sql.query`SELECT * FROM Categories`;
-    return result.recordset;
-  }
+Category.init({
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+}, {
+  sequelize,
+  modelName: 'Category',
+  tableName: 'Categories',
+  timestamps: false,
+});
 
-  static async findByPk(id: number): Promise<Category | null> {
-    const result = await sql.query`SELECT * FROM Categories WHERE id = ${id}`;
-    return result.recordset[0] || null;
-  }
-
-  static async create(name: string): Promise<Category> {
-    const result = await sql.query`INSERT INTO Categories (name) OUTPUT INSERTED.* VALUES (${name})`;
-    return result.recordset[0];
-  }
-
-  static async update(id: number, name: string): Promise<[number, Category[]]> {
-    const result = await sql.query`UPDATE Categories SET name = ${name} OUTPUT INSERTED.* WHERE id = ${id}`;
-    return [result.rowsAffected[0], result.recordset];
-  }
-
-  static async destroy(id: number): Promise<number> {
-    const result = await sql.query`DELETE FROM Categories WHERE id = ${id}`;
-    return result.rowsAffected[0];
-  }
-}
+export default Category;

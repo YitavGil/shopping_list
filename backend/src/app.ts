@@ -1,11 +1,9 @@
 import express from 'express';
-import { connectDB } from './config/database';
+import sequelize from './config/database';
 import categoryRoutes from './routes/categoryRoutes';
 import itemRoutes from './routes/itemRoutes';
 import cors from 'cors';
 import { seedCategories } from './utils/seedCategory';
-import { createCategoriesTable } from './utils/createCategoryTable';
-import { createItemsTable } from './utils/createItemsTable';
 
 const app = express();
 const PORT = 3000;
@@ -21,12 +19,10 @@ app.use('/api/items', itemRoutes);
 
 const initializeDatabase = async () => {
   try {
-    await connectDB();
-    console.log('Database connected successfully');
-    await createCategoriesTable();
-    await createItemsTable();  
+    await sequelize.sync(); // This will create the tables if they don't exist
+    console.log('Database synchronized');
     await seedCategories();
-    console.log('Database initialization and seeding completed');
+    console.log('Database initialized and seeded');
   } catch (error) {
     console.error('Error initializing database:', error);
   }

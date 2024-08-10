@@ -1,4 +1,4 @@
-import { CategoryModel } from '../models';
+import { Category } from '../models';
 
 const categories = [
   'מוצרי ניקיון',
@@ -11,12 +11,15 @@ const categories = [
 export async function seedCategories() {
   for (const categoryName of categories) {
     try {
-      const existingCategory = await CategoryModel.findAll().then(
-        cats => cats.find(cat => cat.name === categoryName)
-      );
+      const [category, created] = await Category.findOrCreate({
+        where: { name: categoryName },
+        defaults: { name: categoryName }
+      });
       
-      if (!existingCategory) {
-        await CategoryModel.create(categoryName);
+      if (created) {
+        console.log(`Category ${categoryName} created`);
+      } else {
+        console.log(`Category ${categoryName} already exists`);
       }
     } catch (error) {
       console.error(`Error seeding category ${categoryName}:`, error);

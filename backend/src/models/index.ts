@@ -1,4 +1,4 @@
-import { CategoryModel, Category } from './category';
-import { ItemModel, Item } from './item';
+import Category from './category';
+import Item from './item';
 
-export { CategoryModel, Category, ItemModel, Item };
+export { Category, Item };

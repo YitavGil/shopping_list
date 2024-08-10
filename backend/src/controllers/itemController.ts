@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { ItemModel } from '../models';
+import { Item } from '../models';
 
 export const getItems = async (req: Request, res: Response) => {
   try {
-    const items = await ItemModel.findAll();
+    const items = await Item.findAll();
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching items', error });
@@ -13,7 +13,7 @@ export const getItems = async (req: Request, res: Response) => {
 export const getItemById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const item = await ItemModel.findByPk(Number(id));
+    const item = await Item.findByPk(Number(id));
     if (item) {
       res.json(item);
     } else {
@@ -30,7 +30,7 @@ export const createItem = async (req: Request, res: Response) => {
     if (!name || !categoryId) {
       return res.status(400).json({ message: 'Name and categoryId are required' });
     }
-    const newItem = await ItemModel.create(name, Number(categoryId), Number(quantity));
+    const newItem = await Item.create({ name, categoryId: Number(categoryId), quantity: Number(quantity) });
     res.status(201).json(newItem);
   } catch (error) {
     console.error('Error creating item:', error);
@@ -41,7 +41,7 @@ export const createItem = async (req: Request, res: Response) => {
 export const createMultipleItems = async (req: Request, res: Response) => {
   try {
     const items = req.body;
-    const createdItems = await ItemModel.bulkCreate(items);
+    const createdItems = await Item.bulkCreate(items);
     res.status(201).json(createdItems);
   } catch (error) {
     res.status(500).json({ message: 'Error creating items', error });
@@ -57,15 +57,11 @@ export const updateItem = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid quantity provided' });
     }
 
-    const item = await ItemModel.findByPk(Number(id));
-    if (!item) {
-      return res.status(404).json({ message: 'Item not found' });
-    }
-
-    const [updated, items] = await ItemModel.update(Number(id), item.name, item.categoryId, Number(quantity));
+    const [updated] = await Item.update({ quantity: Number(quantity) }, { where: { id: Number(id) } });
     
     if (updated > 0) {
-      res.json(items[0]);
+      const updatedItem = await Item.findByPk(Number(id));
+      res.json(updatedItem);
     } else {
       res.status(404).json({ message: 'Item not found' });
     }
@@ -78,7 +74,7 @@ export const updateItem = async (req: Request, res: Response) => {
 export const deleteItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deleted = await ItemModel.destroy(Number(id));
+    const deleted = await Item.destroy({ where: { id: Number(id) } });
     if (deleted) {
       res.status(204).send();
     } else {

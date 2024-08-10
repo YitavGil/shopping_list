@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { CategoryModel } from '../models';
+import { Category } from '../models';
 
 export const getCategories = async (req: Request, res: Response) => {
   try {
-    const categories = await CategoryModel.findAll();
+    const categories = await Category.findAll();
     res.json(categories);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching categories', error });
@@ -13,7 +13,7 @@ export const getCategories = async (req: Request, res: Response) => {
 export const getCategoryById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const category = await CategoryModel.findByPk(Number(id));
+    const category = await Category.findByPk(Number(id));
     if (category) {
       res.json(category);
     } else {
@@ -27,7 +27,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
 export const createCategory = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
-    const newCategory = await CategoryModel.create(name);
+    const newCategory = await Category.create({ name });
     res.status(201).json(newCategory);
   } catch (error) {
     res.status(500).json({ message: 'Error creating category', error });
@@ -38,9 +38,10 @@ export const updateCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
-    const [updated, categories] = await CategoryModel.update(Number(id), name);
+    const [updated] = await Category.update({ name }, { where: { id: Number(id) } });
     if (updated > 0) {
-      res.json(categories[0]);
+      const updatedCategory = await Category.findByPk(Number(id));
+      res.json(updatedCategory);
     } else {
       res.status(404).json({ message: 'Category not found' });
     }
@@ -52,7 +53,7 @@ export const updateCategory = async (req: Request, res: Response) => {
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deleted = await CategoryModel.destroy(Number(id));
+    const deleted = await Category.destroy({ where: { id: Number(id) } });
     if (deleted) {
       res.status(204).send();
     } else {
